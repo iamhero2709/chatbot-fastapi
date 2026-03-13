@@ -3,7 +3,7 @@ import streamlit as st
 import requests
 
 # Allow configuring the backend URL via environment variable
-FASTAPI_URL = os.getenv("FASTAPI_URL", "http://127.0.0.1:8000/api/chat")
+FASTAPI_URL = os.getenv("FASTAPI_URL", "https://chatbot-fastapi-production-b063.up.railway.app/api/chat")
 
 st.set_page_config(page_title="Product Landing Page Bot", page_icon="🤖")
 
