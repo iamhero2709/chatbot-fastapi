@@ -1,73 +1,152 @@
-# Landing Page Chatbot — Founder-ready summary
+# 🤖 Nova — Landing Page Chatbot
 
-This repository contains a minimal landing-page chatbot composed of:
+A production-ready landing-page chatbot built with **FastAPI** and **Streamlit**, powered by **Groq LLMs**. Nova greets visitors, answers product questions, and guides them toward conversion — all in a clean, conversational UI.
 
-- `main.py` — FastAPI backend that forwards chat completion requests to the Groq API.
-- `app.py` — Streamlit frontend that provides a simple chat UI and calls the FastAPI backend.
-- `.env.example` — Example environment variables.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit%20Cloud-FF4B4B?logo=streamlit&logoColor=white)](https://chatbot-fastapi-c84ddkczwdkgtmvwfqjuf2.streamlit.app/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.25%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![CI](https://github.com/iamhero2709/chatbot-fastapi/actions/workflows/ci.yml/badge.svg)](https://github.com/iamhero2709/chatbot-fastapi/actions/workflows/ci.yml)
 
+---
 
-## How it works (short)
+## 🚀 Live Preview
 
-1. The Streamlit UI (`app.py`) collects a user message and calls the FastAPI API at `/api/chat`.
-2. The FastAPI backend (`main.py`) validates the input, builds a short system prompt (Nova the assistant), and calls the Groq client to create a chat completion.
-3. The assistant reply is returned to Streamlit and shown in the UI.
+**[👉 Try Nova live on Streamlit Cloud](https://chatbot-fastapi-c84ddkczwdkgtmvwfqjuf2.streamlit.app/)**
 
+---
 
-## Requirements
+## ✨ Features
 
-- Python 3.10+
-- See `requirements.txt` for runtime packages (FastAPI, Uvicorn, Streamlit, Groq, python-dotenv, etc.).
+| Feature | Description |
+|---------|-------------|
+| **AI-Powered Chat** | Natural conversation via Groq-hosted LLMs (default: `llama3-8b-8192`) |
+| **Quick Replies** | One-click buttons for common questions (pricing, demos, contact) |
+| **Separated Architecture** | Streamlit frontend + FastAPI backend — scale or replace each independently |
+| **Automatic Model Fallback** | Configurable fallback models if the primary model is decommissioned |
+| **Health Endpoint** | `/health` route for uptime monitoring and readiness probes |
+| **CORS Configuration** | Configurable allowed origins for cross-origin requests |
+| **Startup Validation** | Fail-fast on missing API keys to catch misconfigurations early |
+| **Structured Logging** | Configurable log levels for debugging and observability |
+| **CI Pipeline** | GitHub Actions workflow for syntax checks and import smoke tests |
 
+---
 
-## Quick start (local/demo)
+## 🏗️ Architecture
 
-1. Copy the example env file and set your Groq API key:
+```
+┌──────────────────┐        HTTP POST        ┌───────────────────┐        API call        ┌───────────┐
+│   Streamlit UI   │ ──────────────────────▶  │  FastAPI Backend   │ ────────────────────▶  │  Groq API  │
+│    (app.py)      │ ◀──────────────────────  │    (main.py)       │ ◀────────────────────  │  (LLM)     │
+└──────────────────┘      JSON response       └───────────────────┘     Chat completion    └───────────┘
+```
 
-   cp .env.example .env
-   # Edit .env and set GROQ_API_KEY
+1. **Streamlit UI** (`app.py`) — Collects user messages (free text or quick-reply buttons) and displays the conversation history.
+2. **FastAPI Backend** (`main.py`) — Validates input, prepends a system prompt (Nova persona), and calls the Groq chat completion API.
+3. **Groq API** — Returns the LLM-generated assistant reply, which flows back through the backend to the UI.
 
-2. Install dependencies (ideally in a virtualenv):
+---
 
-   python -m pip install -r requirements.txt
+## 📁 Project Structure
 
-3. Start the FastAPI backend (development):
+```
+├── app.py              # Streamlit frontend — chat UI with quick replies
+├── main.py             # FastAPI backend — /api/chat and /health endpoints
+├── requirements.txt    # Python dependencies
+├── .env.example        # Template for environment variables
+├── streamlit.toml      # Streamlit server configuration
+├── DEPLOY.md           # Step-by-step deployment guide (GitHub + Streamlit Cloud)
+├── .devcontainer/      # Dev container config for GitHub Codespaces
+└── .github/workflows/
+    └── ci.yml          # CI pipeline — syntax check & import smoke tests
+```
 
-   uvicorn main:app --reload --port 8000
+---
 
-4. Start the Streamlit UI in another terminal:
+## ⚡ Quick Start
 
-   streamlit run app.py
+### Prerequisites
 
-5. Open http://localhost:8501 in a browser and interact with Nova.
+- **Python 3.10+**
+- A **[Groq API key](https://console.groq.com/)** (free tier available)
 
+### 1. Clone & configure
 
-## Founder demo talking points
+```bash
+git clone https://github.com/iamhero2709/chatbot-fastapi.git
+cd chatbot-fastapi
 
-- The assistant is branded "Nova" and uses a small system prompt to stay concise and friendly.
-- The architecture separates UI and API: Streamlit handles the frontend while FastAPI handles model calls. This makes it easy to replace the UI or scale the API independently.
-- Readiness checks: FastAPI exposes `/health` for uptime/health probes.
-- Security/ops: We keep the API key outside the code in environment variables.
+cp .env.example .env
+# Open .env and set your GROQ_API_KEY
+```
 
+### 2. Install dependencies
 
-## Production notes & next steps
+```bash
+python -m pip install -r requirements.txt
+```
 
-1. Secrets: Move GROQ_API_KEY to a secret manager (AWS Secrets Manager, GCP Secret Manager, or Vault).
-2. Deploy the API behind a process manager (gunicorn + uvicorn workers) or an ASGI platform. Add HTTPS/TLS, a load balancer, and basic auth/rate limiting.
-3. Observability: Add structured logs, request tracing, and metrics (Prometheus) + alerting.
-4. Safety & moderation: Add input sanitization, moderation filters, and throttling to protect cost and prevent abuse.
-5. Tests: Add unit tests for endpoints and e2e tests for the critical chat path.
+### 3. Start the FastAPI backend
 
+```bash
+uvicorn main:app --reload --port 8000
+```
 
-## Files changed in this update
+### 4. Start the Streamlit frontend (in a separate terminal)
 
-- `main.py`: added logging, CORS, startup validation (fail fast if GROQ_API_KEY missing), `/health` endpoint, and improved error handling.
-- `app.py`: made the backend URL configurable and improved error messages/timeouts.
-- `.env.example`: new file documenting environment variables.
-- `README.md`: this founder-ready summary and run instructions.
+```bash
+streamlit run app.py
+```
 
+### 5. Chat with Nova
 
-If you'd like, I can also:
-- Add a Dockerfile and docker-compose for quick deploy/demo.
-- Add a GitHub Actions workflow to run linting and start the app for smoke tests.
-- Add a simple unit test or minimal integration test that mocks the Groq client.
+Open **http://localhost:8501** in your browser and start chatting!
+
+---
+
+## ⚙️ Environment Variables
+
+All configuration is managed through environment variables. See [`.env.example`](.env.example) for a complete template.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GROQ_API_KEY` | ✅ | — | Your Groq API key |
+| `GROQ_MODEL` | | `llama3-8b-8192` | Primary LLM model to use |
+| `GROQ_FALLBACK_MODELS` | | — | Comma-separated fallback models |
+| `FASTAPI_URL` | | `http://localhost:8000/api/chat` | Backend URL used by the Streamlit frontend |
+| `FRONTEND_ORIGINS` | | `http://localhost:8501,http://127.0.0.1:8501` | Allowed CORS origins |
+| `TEMPERATURE` | | `0.7` | LLM sampling temperature |
+| `MAX_TOKENS` | | `200` | Maximum tokens per response |
+| `LOG_LEVEL` | | `INFO` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+
+---
+
+## 🌐 Deployment
+
+The Streamlit frontend is deployed on **[Streamlit Cloud](https://streamlit.io/cloud)** and the FastAPI backend is hosted on **[Railway](https://railway.app/)**.
+
+For a step-by-step guide on pushing to GitHub and deploying to Streamlit Cloud, see **[DEPLOY.md](DEPLOY.md)**.
+
+> **Tip:** Set `GROQ_API_KEY` and other secrets in Streamlit Cloud's **Settings → Secrets** panel instead of committing a `.env` file.
+
+---
+
+## 🔒 Production Considerations
+
+- **Secrets Management** — Move API keys to a secret manager (AWS Secrets Manager, GCP Secret Manager, or HashiCorp Vault).
+- **HTTPS & Load Balancing** — Deploy behind a reverse proxy with TLS termination and rate limiting.
+- **Observability** — Add structured logging, distributed tracing, and metrics (Prometheus/Grafana).
+- **Safety & Moderation** — Add input sanitization, content moderation filters, and per-user throttling.
+- **Testing** — Add unit tests for API endpoints and end-to-end tests for the critical chat path.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open an issue or submit a pull request.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -m "Add my feature"`)
+4. Push to the branch (`git push origin feature/my-feature`)
+5. Open a Pull Request
